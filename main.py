@@ -1,11 +1,10 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QApplication
+
+from MainWindow import MainWindow
 
 app = QApplication(sys.argv)
 
-root = QWidget()
-root.resize(400, 600)
-root.setWindowTitle('Laser Engraving Slicer')
-root.show()
+window = MainWindow()
 
 sys.exit(app.exec_())
