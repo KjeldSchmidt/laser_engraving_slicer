@@ -86,9 +86,11 @@ class MainWindow( QMainWindow ):
 
 	@pyqtSlot()
 	def save_gcode( self ):
-		save_file_name = QFileDialog.getSaveFileName( self, 'Save GCode', filter="GCode (*.gcode)" )
-		if save_file_name[ 0 ]:
-			print( save_file_name[ 0 ] )
+		file_name, file_type = QFileDialog.getSaveFileName( self, 'Save GCode', filter="GCode (*.gcode)" )
+		if file_name:
+			print( file_name )
+			gcode = GCodeGenerator.make_gcode( self.slicer_settings.get_all_attributes() )
+			print( gcode )
 
 	def show_source_image( self ):
 		print( 'setting image' )
