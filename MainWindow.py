@@ -4,33 +4,38 @@ from json import JSONDecodeError
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMainWindow, QAction, QFileDialog, QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout, \
-	QMessageBox
+	QMessageBox, QSizePolicy
 
 import GCodeGenerator
+import SlicerStyles
+from ImageLabel import ImageLabel
 from SlicerSettingsWindow import SlicerSettingsWindow
 
 
 class MainWindow( QMainWindow ):
 	def __init__( self ):
 		super().__init__()
-		self.init_ui()
+
 		self.slicer_settings = SlicerSettingsWindow( self )
+		self.source_image_label = ImageLabel()
+		self.result_image_label = ImageLabel()
+		self.source_image_file_name = None
+		self.central_widget = QWidget()
+
+		self.init_ui()
 
 	def init_ui( self ):
 		self.setGeometry( 200, 200, 400, 600 )
 		self.setWindowTitle( 'Laser Engraving Slicer' )
 
-		self.central_widget = QWidget()
 		self.setCentralWidget( self.central_widget )
 
-		self.source_image_file_name = None
-		self.source_image_label = QLabel()
-
 		sidebar = self.make_sidebar()
+		image_display = self.make_image_display()
 
 		main_layout = QHBoxLayout( self.central_widget )
 		main_layout.addWidget( sidebar )
-		main_layout.addWidget( self.source_image_label )
+		main_layout.addWidget( image_display )
 
 		self.setLayout( main_layout )
 
@@ -84,6 +89,22 @@ class MainWindow( QMainWindow ):
 
 		return sidebar_widget
 
+	def make_image_display( self ):
+		image_display = QWidget()
+
+		size_policy = QSizePolicy( QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding )
+		size_policy.setHeightForWidth( True )
+
+		self.source_image_label.setSizePolicy( size_policy )
+		self.result_image_label.setSizePolicy( size_policy )
+
+		image_layout = QVBoxLayout( image_display )
+
+		image_layout.addWidget( self.source_image_label )
+		image_layout.addWidget( self.result_image_label )
+
+		return image_display
+
 	@pyqtSlot()
 	def open_source_file( self ):
 		picked_file_name, file_type = QFileDialog.getOpenFileName( self, 'Open file',
@@ -128,6 +149,5 @@ class MainWindow( QMainWindow ):
 					msg.exec_()
 
 	def show_source_image( self ):
-		print( 'setting image' )
 		pixmap = QPixmap( self.source_image_file_name )
-		self.source_image_label.setPixmap( pixmap )
+		self.source_image_label.pixmap = pixmap
