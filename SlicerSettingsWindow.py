@@ -27,3 +27,8 @@ class SlicerSettingsWindow( QMainWindow ):
 			'z_init': float( self.z_init.text() ),
 		}
 		return settings
+
+	def set_all_attributes( self, settings: Dict ):
+		self.x_init.setText( str( settings[ 'x_init' ] ) )
+		self.y_init.setText( str( settings[ 'y_init' ] ) )
+		self.z_init.setText( str( settings[ 'z_init' ] ) )
