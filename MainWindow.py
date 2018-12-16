@@ -151,3 +151,4 @@ class MainWindow( QMainWindow ):
 	def show_source_image( self ):
 		pixmap = QPixmap( self.source_image_file_name )
 		self.source_image_label.pixmap = pixmap
+		self.result_image_label.pixmap = SlicerStyles.process_image( pixmap )
