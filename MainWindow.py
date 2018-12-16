@@ -101,9 +101,9 @@ class MainWindow( QMainWindow ):
 	def save_gcode( self ):
 		file_name, file_type = QFileDialog.getSaveFileName( self, 'Save GCode', filter="GCode (*.gcode)" )
 		if file_name:
-			print( file_name )
 			gcode = GCodeGenerator.make_gcode( self.slicer_settings.get_all_attributes() )
-			print( gcode )
+			with open( file_name, 'w' ) as gcode_outfile:
+				gcode_outfile.write( gcode )
 
 	@pyqtSlot()
 	def save_settings( self ):

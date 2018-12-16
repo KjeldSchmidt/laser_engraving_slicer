@@ -16,6 +16,9 @@ def initialize_printer( x_init: float, y_init: float, z_init: float ) -> str:
 
 
 def make_gcode( settings: Dict ) -> str:
-	print( settings )
+	gcode = [ ]
 	start = initialize_printer( settings[ 'x_init' ], settings[ 'y_init' ], settings[ 'z_init' ] )
-	return start
+	gcode.append( start )
+	gcode.append( 'M106 S255; Turn on the laser' )
+
+	return '\n'.join( gcode )
