@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QMainWindow, QAction, QFileDialog
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QMainWindow, QAction, QFileDialog, QGridLayout, QWidget, QLabel
 
 
 class MainWindow( QMainWindow ):
@@ -10,9 +11,18 @@ class MainWindow( QMainWindow ):
 		self.setGeometry( 200, 200, 400, 600 )
 		self.setWindowTitle( 'Laser Engraving Slicer' )
 
-		main_menu = self.menuBar()
-		self.make_file_menu()
+		self.central_widget = QWidget()
+		self.setCentralWidget( self.central_widget )
 
+		self.source_image_file_name = None
+		self.source_image_label = QLabel()
+
+		main_layout = QGridLayout( self.central_widget )
+		main_layout.addWidget( self.source_image_label )
+
+		self.setLayout( main_layout )
+
+		self.make_file_menu()
 		self.show()
 
 	def make_file_menu( self ):
@@ -36,6 +46,10 @@ class MainWindow( QMainWindow ):
 			filter="All Graphics (*.png *.bmp *.jpeg *.jpg *.svg);;Pixel Graphics (*.png *.bmp *.jpeg *.jpg);;Vector Graphics (*.svg)" )
 
 		if picked_file_name[ 0 ]:
-			with open( picked_file_name[ 0 ], 'rb' ) as source_file:
-				data = source_file.read()
-				print( data )
+			self.source_image_file_name = picked_file_name[ 0 ]
+			self.show_source_image()
+
+	def show_source_image( self ):
+		print( 'setting image' )
+		pixmap = QPixmap( self.source_image_file_name )
+		self.source_image_label.setPixmap( pixmap )
