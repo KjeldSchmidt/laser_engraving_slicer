@@ -1,11 +1,15 @@
+from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QMainWindow, QAction, QFileDialog, QGridLayout, QWidget, QLabel
+from PyQt5.QtWidgets import QMainWindow, QAction, QFileDialog, QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+
+from SlicerSettingsWindow import SlicerSettingsWindow
 
 
 class MainWindow( QMainWindow ):
 	def __init__( self ):
 		super().__init__()
 		self.init_ui()
+		self.slicer_settings = SlicerSettingsWindow( self )
 
 	def init_ui( self ):
 		self.setGeometry( 200, 200, 400, 600 )
@@ -17,7 +21,10 @@ class MainWindow( QMainWindow ):
 		self.source_image_file_name = None
 		self.source_image_label = QLabel()
 
-		main_layout = QGridLayout( self.central_widget )
+		sidebar = self.make_sidebar()
+
+		main_layout = QHBoxLayout( self.central_widget )
+		main_layout.addWidget( sidebar )
 		main_layout.addWidget( self.source_image_label )
 
 		self.setLayout( main_layout )
@@ -41,6 +48,30 @@ class MainWindow( QMainWindow ):
 		file_menu.addAction( open_file )
 		file_menu.addAction( close_app )
 
+	def make_sidebar( self ):
+		sidebar_widget = QWidget()
+		sidebar_layout = QVBoxLayout( sidebar_widget )
+		sidebar_layout.setAlignment( Qt.AlignTop )
+
+		open_source_image_button = QPushButton( 'Open Image', sidebar_widget )
+		settings_button = QPushButton( 'Process Settings', sidebar_widget )
+		slice_button = QPushButton( 'Save GCode', sidebar_widget )
+
+		open_source_image_button.setToolTip( 'Open an image file for slicing' )
+		settings_button.setToolTip( 'Change printer settings to ensure a quality result' )
+		slice_button.setToolTip( 'Save GCode to control your engraver' )
+
+		open_source_image_button.clicked.connect( self.open_source_file )
+		settings_button.clicked.connect( self.open_slicer_settings )
+		slice_button.clicked.connect( self.save_gcode )
+
+		sidebar_layout.addWidget( open_source_image_button )
+		sidebar_layout.addWidget( settings_button )
+		sidebar_layout.addWidget( slice_button )
+
+		return sidebar_widget
+
+	@pyqtSlot()
 	def open_source_file( self ):
 		picked_file_name = QFileDialog.getOpenFileName( self, 'Open file',
 			filter="All Graphics (*.png *.bmp *.jpeg *.jpg *.svg);;Pixel Graphics (*.png *.bmp *.jpeg *.jpg);;Vector Graphics (*.svg)" )
@@ -48,6 +79,16 @@ class MainWindow( QMainWindow ):
 		if picked_file_name[ 0 ]:
 			self.source_image_file_name = picked_file_name[ 0 ]
 			self.show_source_image()
+
+	@pyqtSlot()
+	def open_slicer_settings( self ):
+		self.slicer_settings.show()
+
+	@pyqtSlot()
+	def save_gcode( self ):
+		save_file_name = QFileDialog.getSaveFileName( self, 'Save GCode', filter="GCode (*.gcode)" )
+		if save_file_name[ 0 ]:
+			print( save_file_name[ 0 ] )
 
 	def show_source_image( self ):
 		print( 'setting image' )
