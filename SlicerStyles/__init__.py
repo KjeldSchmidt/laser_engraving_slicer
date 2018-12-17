@@ -12,7 +12,7 @@ def process_image( pixmap: QPixmap, settings: Dict ) -> QPixmap:
 
 
 def binarize( image: QImage ) -> QImage:
-	image = image.convertToFormat( QImage.Format_Mono )
+	image = image.convertToFormat( QImage.Format_Mono, Qt.ThresholdDither )
 	return image
 
 
@@ -20,6 +20,10 @@ def to_cross_squares( image: QImage, settings: Dict ) -> QImage:
 	source_image = image.copy()
 	source_image_width = source_image.width()
 	source_image_height = source_image.height()
+
+	if source_image_width == 0 or source_image_height == 0:
+		return source_image
+
 	source_image_ratio = source_image_height / source_image_width
 
 	laser_pixel_size = settings[ 'laser_pixel_size' ]
