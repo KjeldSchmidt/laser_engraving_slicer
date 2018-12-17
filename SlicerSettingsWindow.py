@@ -3,7 +3,7 @@ from typing import Dict, Tuple
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QMainWindow, QWidget, QFormLayout, QLineEdit
 
-from FormAttributes import FloatAttribute
+from FormAttributes import FloatAttribute, BoolAttribute
 
 
 def get_empty_attributes():
@@ -17,6 +17,7 @@ def get_empty_attributes():
 		'plate_height': FloatAttribute( 'Height in mm on Y-axis', 110 ),
 		'move_speed': FloatAttribute( 'Move speed in mm/s', 0.5 ),
 		'laser_pixel_size': FloatAttribute( 'Size of laser pixel in mm', 0.1 ),
+		'move_z_axis': BoolAttribute( 'Home and move Z axis', True )
 	}
 	return attributes
 
