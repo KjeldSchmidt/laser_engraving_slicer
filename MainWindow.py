@@ -147,6 +147,7 @@ class MainWindow( QMainWindow ):
 					error_popup( e, 'Invalid Settings File, Sorry :(' )
 
 	def show_source_image( self ):
+		settings = self.slicer_settings.get_all_attributes()
 		pixmap = QPixmap( self.source_image_file_name )
 		self.source_image_label.pixmap = pixmap
-		self.result_image_label.pixmap = SlicerStyles.process_image( pixmap )
+		self.result_image_label.pixmap = SlicerStyles.process_image( pixmap, settings )

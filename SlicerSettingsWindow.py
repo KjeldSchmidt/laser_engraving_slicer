@@ -11,8 +11,11 @@ def get_empty_attributes():
 		'x_init': FloatAttribute( 'Bed Corner X', 0.00 ),
 		'y_init': FloatAttribute( 'Bed Corner Y', 0.00 ),
 		'focal_length': FloatAttribute( 'Laser Focal Length', 5.00 ),
-		'plate_height': FloatAttribute( 'Height of engraving plate', 1.00 ),
-		'move_speed': FloatAttribute( 'Move speed in mm/s', 0.5 )
+		'plate_thickness': FloatAttribute( 'Thickness of engraving plate', 8.5 ),
+		'plate_width': FloatAttribute( 'Width in mm on X-axis', 110 ),
+		'plate_height': FloatAttribute( 'Height in mm on Y-axis', 110 ),
+		'move_speed': FloatAttribute( 'Move speed in mm/s', 0.5 ),
+		'laser_pixel_size': FloatAttribute( 'Size of laser pixel in mm', 0.1 ),
 	}
 	return attributes
 

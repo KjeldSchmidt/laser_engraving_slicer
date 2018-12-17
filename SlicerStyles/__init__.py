@@ -1,12 +1,49 @@
-from PyQt5.QtGui import QPixmap, QImage
+from typing import Dict
+
+from PyQt5.QtCore import QSize, Qt, QPoint
+from PyQt5.QtGui import QPixmap, QImage, QPainter
 
 
-def process_image( pixmap: QPixmap ) -> QPixmap:
+def process_image( pixmap: QPixmap, settings: Dict ) -> QPixmap:
 	image = pixmap.toImage()
 	image = binarize( image )
+	image = to_cross_squares( image, settings )
 	return QPixmap.fromImage( image )
 
 
 def binarize( image: QImage ) -> QImage:
 	image = image.convertToFormat( QImage.Format_Mono )
 	return image
+
+
+def to_cross_squares( image: QImage, settings: Dict ) -> QImage:
+	source_image = image.copy()
+	source_image_width = source_image.width()
+	source_image_height = source_image.height()
+	source_image_ratio = source_image_height / source_image_width
+
+	laser_pixel_size = settings[ 'laser_pixel_size' ]
+	plate_width = settings[ 'plate_width' ]
+	plate_height = settings[ 'plate_height' ]
+
+	laser_pixels_per_mm = 1 / laser_pixel_size
+	image_width = int( plate_width * laser_pixels_per_mm )
+	image_height = int( plate_height * laser_pixels_per_mm )
+	image_ratio = image_height / image_width
+
+	result = QImage( image_width, image_height, QImage.Format_Mono )
+
+	if source_image_ratio < image_ratio:
+		source_image = source_image.scaledToWidth( image_width )
+		position = QPoint( 0, image_height / 2 - source_image.height() / 2 )
+	else:
+		source_image = source_image.scaledToHeight( image_height )
+		position = QPoint( image_width / 2 - source_image.width() / 2, 0 )
+
+	result.fill( Qt.black )
+
+	painter: QPainter = QPainter( result )
+	painter.drawImage( position, source_image )
+	painter.end()
+
+	return result
