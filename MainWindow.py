@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QMainWindow, QAction, QFileDialog, QWidget, QLabel, 
 
 import GCodeGenerator
 import SlicerStyles
+from ErrorPopup import error_popup
 from ImageLabel import ImageLabel
 from SlicerSettingsWindow import SlicerSettingsWindow
 
@@ -143,10 +144,7 @@ class MainWindow( QMainWindow ):
 					settings = json.load( settings_file )
 					self.slicer_settings.set_all_attributes( settings )
 				except JSONDecodeError as e:
-					msg = QMessageBox()
-					msg.setText( 'Invalid Settings File, Sorry :(' )
-					msg.setDetailedText( str( e ) )
-					msg.exec_()
+					error_popup( e, 'Invalid Settings File, Sorry :(' )
 
 	def show_source_image( self ):
 		pixmap = QPixmap( self.source_image_file_name )
