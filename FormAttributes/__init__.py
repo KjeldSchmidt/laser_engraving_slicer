@@ -21,7 +21,7 @@ class FloatAttribute:
 			error_popup( e, 'Invalid Value entered as floating point number' )
 
 	def get_value( self ) -> float:
-		return self.value
+		return float( self.input.text() )
 
 	def set_value( self, new_value: float ):
 		self.value = new_value
