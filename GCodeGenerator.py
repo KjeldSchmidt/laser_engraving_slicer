@@ -1,7 +1,10 @@
 from typing import Dict
 
 
-def initialize_printer( x_init: float, y_init: float, z_init: float ) -> str:
+def initialize_printer( settings: Dict ) -> str:
+	x_init = settings[ 'x_init' ]
+	y_init = settings[ 'y_init' ]
+	z_init = settings[ 'focal_length' ] + settings[ 'plate_height' ]
 	initial_position_line = f'G1 X{x_init:.2f} Y{y_init:.2f} Z{z_init:.2f} ; Move laser to lower left corner of printing bed'
 
 	initial_lines = [
@@ -17,7 +20,7 @@ def initialize_printer( x_init: float, y_init: float, z_init: float ) -> str:
 
 def make_gcode( settings: Dict ) -> str:
 	gcode = [ ]
-	start = initialize_printer( settings[ 'x_init' ], settings[ 'y_init' ], settings[ 'z_init' ] )
+	start = initialize_printer( settings )
 	gcode.append( start )
 	gcode.append( 'M106 S255; Turn on the laser' )
 
