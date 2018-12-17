@@ -1,5 +1,6 @@
 from typing import Dict, Tuple
 
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QMainWindow, QWidget, QFormLayout, QLineEdit
 
 from FormAttributes import FloatAttribute
@@ -21,10 +22,13 @@ def get_empty_attributes():
 
 
 class SlicerSettingsWindow( QMainWindow ):
-	def __init__( self, parent ):
+	close_signal = pyqtSignal()
+
+	def __init__( self, parent, show_image_slot ):
 		super().__init__( parent )
 		self.setWindowTitle( 'Slicer Settings' )
 		self.attributes = get_empty_attributes()
+		self.close_signal.connect( show_image_slot )
 
 		central_form_widget = QWidget()
 		self.setCentralWidget( central_form_widget )
@@ -43,3 +47,7 @@ class SlicerSettingsWindow( QMainWindow ):
 		for key, value in settings.items():
 			current = self.attributes[ key ]
 			current.set_value( value )
+
+	def closeEvent( self, close_event ):
+		super().closeEvent( close_event )
+		self.close_signal.emit()

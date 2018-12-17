@@ -27,18 +27,18 @@ def to_cross_squares( image: QImage, settings: Dict ) -> QImage:
 	plate_height = settings[ 'plate_height' ]
 
 	laser_pixels_per_mm = 1 / laser_pixel_size
-	image_width = int( plate_width * laser_pixels_per_mm )
-	image_height = int( plate_height * laser_pixels_per_mm )
-	image_ratio = image_height / image_width
+	result_image_width = int( plate_width * laser_pixels_per_mm )
+	result_image_height = int( plate_height * laser_pixels_per_mm )
+	result_image_ratio = result_image_height / result_image_width
 
-	result = QImage( image_width, image_height, QImage.Format_Mono )
+	result = QImage( result_image_width, result_image_height, QImage.Format_Mono )
 
-	if source_image_ratio < image_ratio:
-		source_image = source_image.scaledToWidth( image_width )
-		position = QPoint( 0, image_height / 2 - source_image.height() / 2 )
+	if source_image_ratio < result_image_ratio:
+		source_image = source_image.scaledToWidth( result_image_width )
+		position = QPoint( 0, result_image_height / 2 - source_image.height() / 2 )
 	else:
-		source_image = source_image.scaledToHeight( image_height )
-		position = QPoint( image_width / 2 - source_image.width() / 2, 0 )
+		source_image = source_image.scaledToHeight( result_image_height, Qt.FastTransformation )
+		position = QPoint( result_image_width / 2 - source_image.width() / 2, 0 )
 
 	result.fill( Qt.black )
 

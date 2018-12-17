@@ -17,7 +17,7 @@ class MainWindow( QMainWindow ):
 	def __init__( self ):
 		super().__init__()
 
-		self.slicer_settings = SlicerSettingsWindow( self )
+		self.slicer_settings = SlicerSettingsWindow( self, self.show_source_image )
 		self.source_image_label = ImageLabel()
 		self.result_image_label = ImageLabel()
 		self.source_image_file_name = None
@@ -149,5 +149,7 @@ class MainWindow( QMainWindow ):
 	def show_source_image( self ):
 		settings = self.slicer_settings.get_all_attributes()
 		pixmap = QPixmap( self.source_image_file_name )
+
 		self.source_image_label.pixmap = pixmap
 		self.result_image_label.pixmap = SlicerStyles.process_image( pixmap, settings )
+		self.repaint()
