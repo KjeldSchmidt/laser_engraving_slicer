@@ -65,17 +65,17 @@ def image_to_code( settings: Dict, image: QImage ) -> str:
 			color = image.pixelColor( row, col )
 			if color == Qt.black:
 				instructions.extend( [
-					f'G1 X{col * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
+					f'G0 X{col * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
 					_CMD_laser_on,
 					f'G1 X{(col + 1) * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
 					f'G1 X{(col + 1) * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
 					f'G1 X{col * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
 					_CMD_laser_off,
-					f'G1 X{(col + 1) * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
+					f'G0 X{(col + 1) * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
 					_CMD_laser_on,
 					f'G1 X{col * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
 					_CMD_laser_off,
-					f'G1 X{(col + 1) * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
+					f'G0 X{(col + 1) * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
 					_CMD_laser_on,
 					f'G1 X{col * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
 					_CMD_laser_off
