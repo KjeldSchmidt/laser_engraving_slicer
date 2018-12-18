@@ -12,7 +12,7 @@ def process_image( pixmap: QPixmap, settings: Dict ) -> QPixmap:
 
 
 def binarize( image: QImage ) -> QImage:
-	image = image.convertToFormat( QImage.Format_Mono, Qt.ThresholdDither )
+	image = image.convertToFormat( QImage.Format_Mono )
 	return image
 
 

@@ -11,7 +11,7 @@ def initialize_printer( settings: Dict ) -> str:
 	x_init = settings[ 'x_init' ]
 	y_init = settings[ 'y_init' ]
 	move_z = settings[ 'move_z_axis' ]
-	z_init = settings[ 'focal_length' ] + settings[ 'plate_height' ]
+	z_init = settings[ 'focal_length' ] + settings[ 'plate_thickness' ]
 	feed_rate = settings[ 'move_speed' ]
 
 	if move_z:
@@ -20,11 +20,11 @@ def initialize_printer( settings: Dict ) -> str:
 		homing_line = 'G28 ; Home all axes.'
 	else:
 		initial_position_line = f'G1 X{x_init:.2f} Y{y_init:.2f} ; Move laser to lower left corner of printing bed'
-		homing_line = 'G28 X Y; Home all axes.'
+		homing_line = 'G28 X Y ; Home X and Y.'
 
 	initial_lines = [
 		'G90 ; Set coordinate system to absolute values in X, Y, Z',
-		'M106 S0 ; Turn off the laser',
+		_CMD_laser_off,
 		homing_line,
 		initial_position_line,
 		'G92 X0 Y0 ; Reset Coordinate System',
@@ -65,19 +65,20 @@ def image_to_code( settings: Dict, image: QImage ) -> str:
 			color = image.pixelColor( row, col )
 			if color == Qt.black:
 				instructions.extend( [
-					f'G1 X{col*pixel_box_size:.2f} Y{row*pixel_box_size:.2f}',
+					f'G1 X{col * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
 					_CMD_laser_on,
-					f'G1 X{(col+1)*pixel_box_size:.2f} Y{row*pixel_box_size:.2f}',
-					f'G1 X{(col+1)*pixel_box_size:.2f} Y{(row+1)*pixel_box_size:.2f}',
-					f'G1 X{col*pixel_box_size:.2f} Y{(row+1)*pixel_box_size:.2f}',
+					f'G1 X{(col + 1) * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
+					f'G1 X{(col + 1) * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
+					f'G1 X{col * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
 					_CMD_laser_off,
-					f'G1 X{(col+1)*pixel_box_size:.2f} Y{(row+1)*pixel_box_size:.2f}',
+					f'G1 X{(col + 1) * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
 					_CMD_laser_on,
-					f'G1 X{col*pixel_box_size:.2f} Y{row*pixel_box_size:.2f}',
+					f'G1 X{col * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
 					_CMD_laser_off,
-					f'G1 X{(col+1)*pixel_box_size:.2f} Y{row*pixel_box_size:.2f}',
+					f'G1 X{(col + 1) * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
 					_CMD_laser_on,
-					f'G1 X{col*pixel_box_size:.2f} Y{(row+1)*pixel_box_size:.2f}',
+					f'G1 X{col * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
+					_CMD_laser_off
 				] )
 
 	return '\n'.join( instructions )
