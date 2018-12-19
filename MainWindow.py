@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QMainWindow, QAction, QFileDialog, QWidget, QLabel, 
 	QMessageBox, QSizePolicy
 
 import GCodeGenerator
+import GCodeSimulator
 import SlicerStyles
 from ErrorPopup import error_popup
 from ImageLabel import ImageLabel
@@ -69,24 +70,28 @@ class MainWindow( QMainWindow ):
 		slice_button = QPushButton( 'Save GCode', sidebar_widget )
 		save_settings_button = QPushButton( 'Save Settings', sidebar_widget )
 		load_settings_button = QPushButton( 'Load Settings', sidebar_widget )
+		show_preview_button = QPushButton( 'Show preview', sidebar_widget )
 
 		open_source_image_button.setToolTip( 'Open an image file for slicing' )
 		settings_button.setToolTip( 'Change printer settings to ensure a quality result' )
 		slice_button.setToolTip( 'Save GCode to control your engraver' )
 		save_settings_button.setToolTip( 'Save Settings for quick and easy reuse' )
 		load_settings_button.setToolTip( 'Load Settings for quick and easy reuse' )
+		show_preview_button.setToolTip( 'Show a result preview' )
 
 		open_source_image_button.clicked.connect( self.open_source_file )
 		settings_button.clicked.connect( self.open_slicer_settings )
 		slice_button.clicked.connect( self.save_gcode )
 		save_settings_button.clicked.connect( self.save_settings )
 		load_settings_button.clicked.connect( self.load_settings )
+		show_preview_button.clicked.connect( self.show_preview )
 
 		sidebar_layout.addWidget( open_source_image_button )
 		sidebar_layout.addWidget( settings_button )
 		sidebar_layout.addWidget( slice_button )
 		sidebar_layout.addWidget( save_settings_button )
 		sidebar_layout.addWidget( load_settings_button )
+		sidebar_layout.addWidget( show_preview_button )
 
 		return sidebar_widget
 
@@ -146,6 +151,12 @@ class MainWindow( QMainWindow ):
 					self.slicer_settings.set_all_attributes( settings )
 				except JSONDecodeError as e:
 					error_popup( e, 'Invalid Settings File, Sorry :(' )
+
+	@pyqtSlot()
+	def show_preview( self ):
+		image = self.result_image_label.pixmap.toImage()
+		gcode = GCodeGenerator.make_gcode( self.slicer_settings.get_all_attributes(), image )
+		GCodeSimulator.image_from_gcode( gcode )
 
 	def show_source_image( self ):
 		settings = self.slicer_settings.get_all_attributes()
