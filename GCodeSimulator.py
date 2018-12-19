@@ -21,19 +21,20 @@ def image_from_gcode( gcode: str, pixels_per_mm=20 ):
 	image = Image.new( 'L', (width, height), 255 )
 	draw = ImageDraw.Draw( image )
 
-	fill = 255
+	fill = True
 	cur_x = 0
 	cur_y = 0
 	for line in lines:
 		if line == 'M106 S255':
-			fill = 0
+			fill = True
 
 		elif line == 'M106 S0':
-			fill = 255
+			fill = False
 
 		else:
 			new_x, new_y = extract_new_position( line, pixels_per_mm )
-			draw.line( (cur_x, cur_y, new_x, new_y), fill )
+			if fill:
+				draw.line( (cur_x, cur_y, new_x, new_y), 0 )
 			cur_x, cur_y = new_x, new_y
 
 	image.show()
