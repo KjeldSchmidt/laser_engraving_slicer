@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage
@@ -7,7 +7,7 @@ _CMD_laser_on = 'M106 S255'
 _CMD_laser_off = 'M106 S0'
 
 
-def initialize_printer( settings: Dict ) -> str:
+def _initialize_printer( settings: Dict ) -> str:
 	x_init = settings[ 'x_init' ]
 	y_init = settings[ 'y_init' ]
 	move_z = settings[ 'move_z_axis' ]
@@ -34,15 +34,15 @@ def initialize_printer( settings: Dict ) -> str:
 	return '\n'.join( initial_lines )
 
 
-def finalize_printer( settings ) -> str:
+def _finalize_printer( settings ) -> str:
 	return _CMD_laser_off
 
 
 def make_gcode( settings: Dict, image: QImage ) -> str:
 	gcode = [ ]
-	start = initialize_printer( settings )
+	start = _initialize_printer( settings )
 	image_code = image_to_code( settings, image )
-	end = finalize_printer( settings )
+	end = _finalize_printer( settings )
 
 	gcode.append( start )
 	gcode.append( image_code )
@@ -64,21 +64,29 @@ def image_to_code( settings: Dict, image: QImage ) -> str:
 		for col in range( width ):
 			color = image.pixelColor( row, col )
 			if color == Qt.black:
-				instructions.extend( [
-					f'G0 X{col * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
-					_CMD_laser_on,
-					f'G1 X{(col + 1) * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
-					f'G1 X{(col + 1) * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
-					f'G1 X{col * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
-					_CMD_laser_off,
-					f'G0 X{(col + 1) * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
-					_CMD_laser_on,
-					f'G1 X{col * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
-					_CMD_laser_off,
-					f'G0 X{(col + 1) * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
-					_CMD_laser_on,
-					f'G1 X{col * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
-					_CMD_laser_off
-				] )
+				instructions.extend( _fill_square( settings, row, col, 1 ) )
 
 	return '\n'.join( instructions )
+
+
+def _fill_square( settings: Dict, row: int, col: int, fill_percentage: float ) -> List[ str ]:
+	pixel_box_size = settings[ 'pixel_box_size' ]
+
+	percentage_per_line = pixel_box_size / settings[ 'laser_pixel_size' ]
+
+	return [
+		f'G0 X{col * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
+		_CMD_laser_on,
+		f'G1 X{(col + 1) * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
+		f'G1 X{(col + 1) * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
+		f'G1 X{col * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
+		_CMD_laser_off,
+		f'G0 X{(col + 1) * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
+		_CMD_laser_on,
+		f'G1 X{col * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
+		_CMD_laser_off,
+		f'G0 X{(col + 1) * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
+		_CMD_laser_on,
+		f'G1 X{col * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
+		_CMD_laser_off
+	]
