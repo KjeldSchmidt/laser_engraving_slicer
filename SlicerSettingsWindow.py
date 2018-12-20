@@ -3,7 +3,7 @@ from typing import Dict, Tuple
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QMainWindow, QWidget, QFormLayout, QLineEdit
 
-from FormAttributes import FloatAttribute, BoolAttribute
+from FormAttributes import FloatAttribute, BoolAttribute, ComboAttribute
 
 
 def get_empty_attributes():
@@ -18,7 +18,9 @@ def get_empty_attributes():
 		'move_speed': FloatAttribute( 'Move speed in mm/s', 0.5 ),
 		'laser_pixel_size': FloatAttribute( 'Size of laser pixel in mm', 0.1 ),
 		'pixel_box_size': FloatAttribute( 'Size of black box (what?) in mm', 1 ),
-		'move_z_axis': BoolAttribute( 'Home and move Z axis', True )
+		'move_z_axis': BoolAttribute( 'Home and move Z axis', True ),
+		'burn_style': ComboAttribute( 'Style of burn', [ 'B/W Crosses', 'Parallel Lines' ] ),
+		'lines_direction': ComboAttribute( 'Direction of burn', [ 'Vertical', 'Horizontal', 'Diagonal' ] ),
 	}
 	return attributes
 

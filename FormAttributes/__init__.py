@@ -1,7 +1,7 @@
-from typing import Any
+from typing import Any, List, Iterable
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLineEdit, QCheckBox
+from PyQt5.QtWidgets import QLineEdit, QCheckBox, QComboBox
 from abc import ABC, abstractmethod
 
 from ErrorPopup import error_popup
@@ -58,7 +58,6 @@ class FloatAttribute( SettingsAttribute ):
 		return float( self.input.text() )
 
 	def set_value( self, new_value: float ):
-		self.value = new_value
 		self.input.setText( str( new_value ) )
 
 
@@ -76,5 +75,27 @@ class BoolAttribute( SettingsAttribute ):
 		return self.input.checkState() == Qt.Checked
 
 	def set_value( self, new_value: bool ):
-		self.value = new_value
 		self.input.setCheckState( Qt.Checked if new_value else Qt.Unchecked )
+
+
+class ComboAttribute( SettingsAttribute ):
+	def __init__( self, description: str, options: Iterable[ str ], default: str = None ):
+		options = list( options )
+		assert default in options or default is None, 'Default value is not in the options!'
+
+		super().__init__( description, default )
+
+		self.input = QComboBox()
+		self.input.addItems( options )
+
+		if default is not None:
+			self.input.setCurrentIndex( options.index( default ) )
+
+	def get_text_value( self ) -> str:
+		return str( self.input.currentText() )
+
+	def get_value( self ) -> int:
+		return self.input.currentIndex()
+
+	def set_value( self, new_value: int ):
+		self.input.setCurrentIndex( new_value )
