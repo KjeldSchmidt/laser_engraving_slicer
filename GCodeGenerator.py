@@ -1,7 +1,7 @@
 from typing import Dict, List
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QImage
+from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtGui import QImage, QPainter
 
 _CMD_laser_on = 'M106 S255'
 _CMD_laser_off = 'M106 S0'
@@ -41,8 +41,12 @@ def _finalize_printer( settings ) -> str:
 def make_gcode( settings: Dict, image: QImage ) -> str:
 	gcode = [ ]
 	start = _initialize_printer( settings )
-	image_code = image_to_code( settings, image )
 	end = _finalize_printer( settings )
+
+	if settings[ 'burn_style' ] == 0:
+		image_code = _image_to_bw_crosses( settings, image )
+	elif settings[ 'burn_style' ] == 1:
+		image_code = _image_to_parallel_lines_( settings, image )
 
 	gcode.append( start )
 	gcode.append( image_code )
@@ -51,7 +55,15 @@ def make_gcode( settings: Dict, image: QImage ) -> str:
 	return '\n'.join( gcode )
 
 
-def image_to_code( settings: Dict, image: QImage ) -> str:
+def _image_to_parallel_lines_( settings: Dict, image: QImage ) -> str:
+	scaled_image = _scale_image( settings, image )
+	image = scaled_image.convertToFormat( QImage.Format_Grayscale8 )
+
+
+def _image_to_bw_crosses( settings: Dict, image: QImage ) -> str:
+	scaled_image = _scale_image( settings, image )
+	image = scaled_image.convertToFormat( QImage.Format_Mono )
+
 	height = image.height()
 	width = image.width()
 
@@ -90,3 +102,34 @@ def _fill_square( settings: Dict, row: int, col: int, fill_percentage: float ) -
 		f'G1 X{col * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
 		_CMD_laser_off
 	]
+
+
+def _scale_image( settings: Dict, source_image: QImage ):
+	source_image_width = source_image.width()
+	source_image_height = source_image.height()
+	source_image_ratio = source_image_height / source_image_width
+
+	pixel_box_size = settings[ 'pixel_box_size' ]
+	plate_width = settings[ 'plate_width' ]
+	plate_height = settings[ 'plate_height' ]
+
+	result_image_width = int( plate_width / pixel_box_size )
+	result_image_height = int( plate_height / pixel_box_size )
+	result_image_ratio = result_image_height / result_image_width
+
+	result = QImage( result_image_width, result_image_height, QImage.Format_Mono )
+
+	if source_image_ratio < result_image_ratio:
+		scaled_image = source_image.scaledToWidth( result_image_width )
+		position = QPoint( 0, result_image_height / 2 - scaled_image.height() / 2 )
+	else:
+		scaled_image = source_image.scaledToHeight( result_image_height, Qt.FastTransformation )
+		position = QPoint( result_image_width / 2 - scaled_image.width() / 2, 0 )
+
+	result.fill( Qt.black )
+
+	painter = QPainter( result )
+	painter.drawImage( position, scaled_image )
+	painter.end()
+
+	return result

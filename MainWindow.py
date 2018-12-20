@@ -128,7 +128,7 @@ class MainWindow( QMainWindow ):
 	def save_gcode( self ):
 		file_name, file_type = QFileDialog.getSaveFileName( self, 'Save GCode', filter="GCode (*.gcode)" )
 		if file_name:
-			image = self.result_image_label.pixmap.toImage()
+			image = self.source_image_label.pixmap.toImage()
 			gcode = GCodeGenerator.make_gcode( self.slicer_settings.get_all_attributes(), image )
 			with open( file_name, 'w' ) as gcode_outfile:
 				gcode_outfile.write( gcode )
@@ -154,14 +154,14 @@ class MainWindow( QMainWindow ):
 
 	@pyqtSlot()
 	def show_preview( self ):
-		image = self.result_image_label.pixmap.toImage()
-		gcode = GCodeGenerator.make_gcode( self.slicer_settings.get_all_attributes(), image )
-		GCodeSimulator.image_from_gcode( gcode )
+		if self.source_image_label.pixmap is not None:
+			image = self.source_image_label.pixmap.toImage()
+			gcode = GCodeGenerator.make_gcode( self.slicer_settings.get_all_attributes(), image )
+			preview = GCodeSimulator.image_from_gcode( gcode )
+			self.result_image_label.pixmap = preview
+			self.repaint()
 
 	def show_source_image( self ):
-		settings = self.slicer_settings.get_all_attributes()
 		pixmap = QPixmap( self.source_image_file_name )
-
 		self.source_image_label.pixmap = pixmap
-		self.result_image_label.pixmap = SlicerStyles.process_image( pixmap, settings )
 		self.repaint()

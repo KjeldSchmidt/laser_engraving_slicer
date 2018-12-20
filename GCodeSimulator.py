@@ -1,5 +1,6 @@
 from typing import List, Tuple
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageQt
+from PyQt5 import QtGui
 
 
 def extract_new_position( line: str, pixels_per_mm ) -> Tuple[ float, float ]:
@@ -8,7 +9,7 @@ def extract_new_position( line: str, pixels_per_mm ) -> Tuple[ float, float ]:
 	return x, y
 
 
-def image_from_gcode( gcode: str, pixels_per_mm=20 ):
+def image_from_gcode( gcode: str, pixels_per_mm=5 ):
 	lines = gcode.splitlines()
 	lines = lines[ 6: ]
 
@@ -21,7 +22,7 @@ def image_from_gcode( gcode: str, pixels_per_mm=20 ):
 	image = Image.new( 'L', (width, height), 255 )
 	draw = ImageDraw.Draw( image )
 
-	fill = True
+	fill = False
 	cur_x = 0
 	cur_y = 0
 	for line in lines:
@@ -36,8 +37,9 @@ def image_from_gcode( gcode: str, pixels_per_mm=20 ):
 			if fill:
 				draw.line( (cur_x, cur_y, new_x, new_y), 0 )
 			cur_x, cur_y = new_x, new_y
-
-	image.show()
+	qim = ImageQt.ImageQt( image )
+	image = QtGui.QPixmap.fromImage( qim )
+	return image
 
 
 def find_max_y( gcode: List[ str ] ):
