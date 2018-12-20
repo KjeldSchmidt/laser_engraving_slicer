@@ -111,16 +111,16 @@ def _scale_image( settings: Dict, source_image: QImage ):
 	result_image_height = int( plate_height / pixel_box_size )
 	result_image_ratio = result_image_height / result_image_width
 
-	result = QImage( result_image_width, result_image_height, QImage.Format_Mono )
+	result = QImage( result_image_width, result_image_height, source_image.format() )
 
 	if source_image_ratio < result_image_ratio:
 		scaled_image = source_image.scaledToWidth( result_image_width )
 		position = QPoint( 0, result_image_height / 2 - scaled_image.height() / 2 )
 	else:
-		scaled_image = source_image.scaledToHeight( result_image_height, Qt.FastTransformation )
+		scaled_image = source_image.scaledToHeight( result_image_height )
 		position = QPoint( result_image_width / 2 - scaled_image.width() / 2, 0 )
 
-	result.fill( Qt.black )
+	result.fill( Qt.white )
 
 	painter = QPainter( result )
 	painter.drawImage( position, scaled_image )
