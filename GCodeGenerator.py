@@ -67,24 +67,20 @@ def _image_to_bw_crosses( settings: Dict, image: QImage ) -> str:
 	height = image.height()
 	width = image.width()
 
-	pixel_box_size = settings[ 'pixel_box_size' ]
-
 	instructions = [ ]
 
 	for row_inv in range( height ):
 		row = height - row_inv - 1
 		for col in range( width ):
-			color = image.pixelColor( row, col )
+			color = image.pixelColor( col, row )
 			if color == Qt.black:
-				instructions.extend( _fill_square( settings, row, col, 1 ) )
+				instructions.extend( _fill_square( settings, row, col ) )
 
 	return '\n'.join( instructions )
 
 
-def _fill_square( settings: Dict, row: int, col: int, fill_percentage: float ) -> List[ str ]:
+def _fill_square( settings: Dict, row: int, col: int ) -> List[ str ]:
 	pixel_box_size = settings[ 'pixel_box_size' ]
-
-	percentage_per_line = pixel_box_size / settings[ 'laser_pixel_size' ]
 
 	return [
 		f'G0 X{col * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
@@ -92,12 +88,10 @@ def _fill_square( settings: Dict, row: int, col: int, fill_percentage: float ) -
 		f'G1 X{(col + 1) * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
 		f'G1 X{(col + 1) * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
 		f'G1 X{col * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
-		_CMD_laser_off,
+		f'G0 X{col * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
 		f'G0 X{(col + 1) * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
-		_CMD_laser_on,
-		f'G1 X{col * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
 		_CMD_laser_off,
-		f'G0 X{(col + 1) * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
+		f'G1 X{(col + 1) * pixel_box_size:.2f} Y{row * pixel_box_size:.2f}',
 		_CMD_laser_on,
 		f'G1 X{col * pixel_box_size:.2f} Y{(row + 1) * pixel_box_size:.2f}',
 		_CMD_laser_off
