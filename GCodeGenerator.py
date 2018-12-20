@@ -1,10 +1,14 @@
 from typing import Dict, List
 
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtGui import QImage, QPainter
+from PyQt5.QtGui import QImage, QPainter, QColor
 
 _CMD_laser_on = 'M106 S255'
 _CMD_laser_off = 'M106 S0'
+
+
+def _move_to( x, y ):
+	return f'G1 X{x:.2f} Y{y:.2f}'
 
 
 def _initialize_printer( settings: Dict ) -> str:
@@ -56,8 +60,51 @@ def make_gcode( settings: Dict, image: QImage ) -> str:
 
 
 def _image_to_parallel_lines_( settings: Dict, image: QImage ) -> str:
-	scaled_image = _scale_image( settings, image )
-	image = scaled_image.convertToFormat( QImage.Format_Grayscale8 )
+	image: QImage = image.convertToFormat( QImage.Format_Grayscale8 )
+	image = _scale_image( settings, image )
+
+	pixel_box_size = settings[ 'pixel_box_size' ]
+	direction = settings[ 'lines_direction' ]
+	laser_pixel_size = settings[ 'laser_pixel_size' ]
+
+	max_lines_per_pixel = (pixel_box_size / laser_pixel_size) * 0.5
+	percentage_per_line = 1 / max_lines_per_pixel * 100
+
+	if direction != 0:
+		raise NotImplementedError()
+
+	height = image.height()
+	width = image.width()
+
+	line_segments = [ ]
+
+	for row_inv in range( height ):
+		row = height - row_inv - 1
+		line_segments.append( [ ] )
+		y_base = row * pixel_box_size
+
+		for col in range( width ):
+			segments = [ ]
+			lightness = image.pixelColor( col, row ).lightness()
+			amount_to_blacken = (255 - lightness) / 2.55
+			required_line_count = int( amount_to_blacken / percentage_per_line )
+			for i in range( required_line_count ):
+				y_point = y_base + (i + 1) / required_line_count * pixel_box_size
+				segments.append( y_point )
+
+			line_segments[ -1 ].append( segments )
+
+	instructions = [ ]
+	for row in line_segments:
+		for col_i, col in enumerate( row ):
+			for y_point in col:
+				instructions.extend( [
+					_move_to( col_i * pixel_box_size, y_point ),
+					_CMD_laser_on,
+					_move_to( (col_i + 1) * pixel_box_size, y_point )
+				] )
+
+	return '\n'.join( instructions )
 
 
 def _image_to_bw_crosses( settings: Dict, image: QImage ) -> str:

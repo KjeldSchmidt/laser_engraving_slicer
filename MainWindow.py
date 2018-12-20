@@ -3,12 +3,11 @@ from json import JSONDecodeError
 
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QMainWindow, QAction, QFileDialog, QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout, \
-	QMessageBox, QSizePolicy
+from PyQt5.QtWidgets import QMainWindow, QAction, QFileDialog, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, \
+	QSizePolicy
 
 import GCodeGenerator
 import GCodeSimulator
-import SlicerStyles
 from ErrorPopup import error_popup
 from ImageLabel import ImageLabel
 from SlicerSettingsWindow import SlicerSettingsWindow

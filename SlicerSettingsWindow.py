@@ -19,8 +19,8 @@ def get_empty_attributes():
 		'laser_pixel_size': FloatAttribute( 'Size of laser pixel in mm', 0.1 ),
 		'pixel_box_size': FloatAttribute( 'Size of black box (what?) in mm', 1 ),
 		'move_z_axis': BoolAttribute( 'Home and move Z axis', True ),
-		'burn_style': ComboAttribute( 'Style of burn', [ 'B/W Crosses', 'Parallel Lines' ] ),
-		'lines_direction': ComboAttribute( 'Direction of burn', [ 'Vertical', 'Horizontal', 'Diagonal' ] ),
+		'burn_style': ComboAttribute( 'Style of burn', [ 'B/W Crosses', 'Parallel Lines' ], 'Parallel Lines' ),
+		'lines_direction': ComboAttribute( 'Direction of burn', [ 'Horizontal', 'Vertical', 'Diagonal' ] ),
 	}
 	return attributes
 
