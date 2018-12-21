@@ -7,12 +7,8 @@ _CMD_laser_on = 'M106 S255'
 _CMD_laser_off = 'M106 S0'
 
 
-def _slow_move( x, y ):
-	return f'G1 X{x:.2f} Y{y:.2f}'
-
-
-def _fast_move( x, y ):
-	return f'G1 X{x:.2f} Y{y:.2f}'
+def _move( x, y, speed ):
+	return f'G1 X{x:.2f} Y{y:.2f} F{speed:.2f}'
 
 
 def _initialize_printer( settings: Dict ) -> str:
@@ -20,7 +16,7 @@ def _initialize_printer( settings: Dict ) -> str:
 	y_init = settings[ 'y_init' ]
 	move_z = settings[ 'move_z_axis' ]
 	z_init = settings[ 'focal_length' ] + settings[ 'plate_thickness' ]
-	feed_rate = settings[ 'move_speed' ]
+	feed_rate = settings[ 'burn_speed' ]
 
 	if move_z:
 		initial_position_line = \
@@ -70,6 +66,8 @@ def _image_to_parallel_lines_( settings: Dict, image: QImage ) -> str:
 	pixel_box_size = settings[ 'pixel_box_size' ]
 	direction = settings[ 'lines_direction' ]
 	laser_pixel_size = settings[ 'laser_pixel_size' ]
+	burn_speed = settings[ 'burn_speed' ]
+	travel_speed = settings[ 'travel_speed' ]
 
 	max_lines_per_pixel = (pixel_box_size / laser_pixel_size) * 0.5
 	percentage_per_line = 1 / max_lines_per_pixel * 100
@@ -103,10 +101,12 @@ def _image_to_parallel_lines_( settings: Dict, image: QImage ) -> str:
 		for col_i, col in enumerate( row ):
 			for y_point in col:
 				instructions.extend( [
-					_fast_move( col_i * pixel_box_size, y_point ),
+					_CMD_laser_off,
+					_move( col_i * pixel_box_size, y_point, travel_speed ),
 					_CMD_laser_on,
-					_slow_move( (col_i + 1) * pixel_box_size, y_point ),
-					_CMD_laser_off
+					_move( (col_i + 1) * pixel_box_size, y_point, burn_speed ),
+					_CMD_laser_off,
+					'G4 P150'
 				] )
 
 	return '\n'.join( instructions )
