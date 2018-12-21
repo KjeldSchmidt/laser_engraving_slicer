@@ -102,6 +102,7 @@ def _image_to_parallel_lines_( settings: Dict, image: QImage ) -> str:
 					_move_to( col_i * pixel_box_size, y_point ),
 					_CMD_laser_on,
 					_move_to( (col_i + 1) * pixel_box_size, y_point )
+					_CMD_laser_off
 				] )
 
 	return '\n'.join( instructions )
