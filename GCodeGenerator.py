@@ -7,7 +7,11 @@ _CMD_laser_on = 'M106 S255'
 _CMD_laser_off = 'M106 S0'
 
 
-def _move_to( x, y ):
+def _slow_move( x, y ):
+	return f'G1 X{x:.2f} Y{y:.2f}'
+
+
+def _fast_move( x, y ):
 	return f'G1 X{x:.2f} Y{y:.2f}'
 
 
@@ -99,9 +103,9 @@ def _image_to_parallel_lines_( settings: Dict, image: QImage ) -> str:
 		for col_i, col in enumerate( row ):
 			for y_point in col:
 				instructions.extend( [
-					_move_to( col_i * pixel_box_size, y_point ),
+					_fast_move( col_i * pixel_box_size, y_point ),
 					_CMD_laser_on,
-					_move_to( (col_i + 1) * pixel_box_size, y_point )
+					_slow_move( (col_i + 1) * pixel_box_size, y_point ),
 					_CMD_laser_off
 				] )
 
